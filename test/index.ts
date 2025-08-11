@@ -1,5 +1,5 @@
 import expect from "expect.js";
-import { Emitter } from "../lib";
+import { Emitter } from "../dist";
 import { decode as msgpackDecode } from "notepack.io";
 
 type SentMessage = {
@@ -46,7 +46,7 @@ describe("emitter (Service Bus)", () => {
     expect((packet.data[4] as Buffer).equals(buffer)).to.be(true);
     expect(Buffer.isBuffer(packet.data[5])).to.be(true);
     expect((packet.data[5] as Buffer).equals(Buffer.from(arraybuffer))).to.be(
-      true
+      true,
     );
     expect(opts.rooms).to.eql([]);
     expect(opts.except).to.eql([]);
@@ -89,7 +89,7 @@ describe("emitter (Service Bus)", () => {
 
     // verify last emit had compress flag set to false
     const [, , lastOpts] = msgpackDecode(
-      sentMessages[sentMessages.length - 1].body
+      sentMessages[sentMessages.length - 1].body,
     ) as [string, any, any];
     expect(lastOpts.flags.compress).to.be(false);
   });
@@ -134,7 +134,7 @@ describe("emitter (Service Bus)", () => {
       const [, , opts] = msgpackDecode(sentMessages[0].body) as [
         string,
         any,
-        any
+        any,
       ];
       expect(opts.except).to.eql(["socket-456"]);
     });

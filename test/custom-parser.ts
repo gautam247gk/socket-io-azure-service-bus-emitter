@@ -1,5 +1,5 @@
 import expect from "expect.js";
-import { Emitter } from "../lib";
+import { Emitter } from "../dist";
 
 type SentMessage = {
   body: any;
@@ -38,7 +38,7 @@ describe("emitter - custom parser", () => {
     const [uid, packet, opts] = JSON.parse(msg.body as string) as [
       string,
       any,
-      any
+      any,
     ];
     expect(uid).to.be("emitter");
     expect(packet.nsp).to.be("/");

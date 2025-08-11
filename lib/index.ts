@@ -391,7 +391,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
 }
 
 export default function emitter<
-  EmitEvents extends EventsMap = DefaultEventsMap
+  EmitEvents extends EventsMap = DefaultEventsMap,
 >(sbSender: ServiceBusSender, opts?: EmitterOptions): Emitter<EmitEvents> {
   return new Emitter(sbSender, opts);
 }

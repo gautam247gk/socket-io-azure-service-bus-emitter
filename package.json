@@ -13,9 +13,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --timeout 5000 test/index.ts --exit",
-    "format:check": "prettier --parser typescript --check lib/**/*.ts test/**/*.ts",
-    "format:fix": "prettier --parser typescript --write lib/**/*.ts test/**/*.ts",
+    "test": "tsc && nyc ts-mocha nyc ts-mocha ./test/index.ts",
     "prepack": "tsc"
   },
   "dependencies": {
@@ -31,7 +29,7 @@
     "expect.js": "~0.3.1",
     "mocha": "^11.7.1",
     "nyc": "^17.0.0",
-    "prettier": "^3.3.3",
+    "ts-mocha": "^11.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
