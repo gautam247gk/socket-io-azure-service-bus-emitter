@@ -1,6 +1,6 @@
 // src/index.ts
 import { PacketType } from "socket.io-parser";
-import { encode as msgpackEncode } from "notepack.io";
+import { encode as msgpackEncode } from "@msgpack/msgpack";
 import debugModule from "debug";
 import type {
   DefaultEventsMap,
@@ -10,23 +10,11 @@ import type {
   TypedEventBroadcaster,
 } from "./typed-events";
 import type { ServiceBusSender } from "@azure/service-bus";
+import { ClusterMessage, MessageType } from "socket.io-adapter";
 
 const debug = debugModule("socket.io-emitter-servicebus");
 
 const UID = "emitter";
-
-/**
- * Request types, for messages between nodes
- */
-enum RequestType {
-  SOCKETS = 0,
-  ALL_ROOMS = 1,
-  REMOTE_JOIN = 2,
-  REMOTE_LEAVE = 3,
-  REMOTE_DISCONNECT = 4,
-  REMOTE_FETCH = 5,
-  SERVER_SIDE_EMIT = 6,
-}
 
 interface Parser {
   encode: (msg: any) => any;
@@ -39,7 +27,7 @@ export interface EmitterOptions {
   key?: string;
   /**
    * The parser to use for encoding messages sent to Service Bus.
-   * Defaults to notepack.io, a MessagePack implementation.
+   * Defaults to @msgpack/msgpack to match the adapter.
    */
   parser?: Parser;
 }
@@ -146,7 +134,7 @@ export class Emitter<EmitEvents extends EventsMap = DefaultEventsMap> {
 
   /**
    * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
-   * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+   * receive messages (because of network slowness or other issues, or because they're connected through long polling
    * and is in the middle of a request-response cycle).
    *
    * @return BroadcastOperator
@@ -219,21 +207,29 @@ export class Emitter<EmitEvents extends EventsMap = DefaultEventsMap> {
       throw new Error("Acknowledgements are not supported");
     }
 
-    const request = JSON.stringify({
+    // Create cluster message format for server-side emit
+    const clusterMessage: ClusterMessage = {
       uid: UID,
-      type: RequestType.SERVER_SIDE_EMIT,
-      data: args,
-    });
+      type: MessageType.SERVER_SIDE_EMIT, // SERVER_SIDE_EMIT
+      data: {
+        packet: args,
+      },
+      nsp: this.nsp,
+    };
 
-    this.sendMessage(this.broadcastOptions.requestChannel, request);
+    const msg = this.broadcastOptions.parser.encode(clusterMessage);
+    this.sendMessage("", msg);
   }
 
   private async sendMessage(channel: string, body: any) {
-    debug("sending message to channel %s", channel);
+    debug("sending message to topic");
     await this.sbSender.sendMessages({
       body,
       contentType: "application/octet-stream",
-      subject: channel,
+      applicationProperties: {
+        nsp: this.nsp,
+        uid: UID,
+      },
     });
   }
 }
@@ -329,69 +325,106 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
       except: [...this.exceptRooms],
     };
 
-    const msg = this.broadcastOptions.parser.encode([UID, packet, opts]);
-    let channel = this.broadcastOptions.broadcastChannel;
-    if (this.rooms && this.rooms.size === 1) {
-      channel += this.rooms.keys().next().value + "#";
-    }
+    // Create cluster message format that adapter expects
+    // The adapter expects ClusterMessage format from socket.io-adapter
+    const clusterMessage: ClusterMessage = {
+      uid: UID,
+      type: MessageType.BROADCAST, // BROADCAST
+      data: {
+        packet: {
+          type: PacketType.EVENT, // PacketType.EVENT
+          data: packet.data,
+          nsp: packet.nsp,
+        },
+        opts: {
+          rooms: opts.rooms,
+          flags: opts.flags,
+          except: opts.except,
+        },
+      },
+      nsp: packet.nsp,
+    };
 
-    debug("publishing message to channel %s", channel);
+    const msg = this.broadcastOptions.parser.encode(clusterMessage);
 
-    this.sendMessage(channel, msg);
+    // Send to the main topic - the adapter will handle routing based on rooms
+    debug("publishing message to topic");
+
+    this.sendMessage("", msg);
     return true;
   }
 
   public socketsJoin(rooms: string | string[]): void {
-    const request = JSON.stringify({
-      type: RequestType.REMOTE_JOIN,
-      opts: {
-        rooms: [...this.rooms],
-        except: [...this.exceptRooms],
+    const clusterMessage: ClusterMessage = {
+      uid: UID,
+      type: MessageType.SOCKETS_JOIN, // SOCKETS_JOIN
+      data: {
+        opts: {
+          rooms: [...this.rooms],
+          except: [...this.exceptRooms],
+          flags: this.flags,
+        },
+        rooms: Array.isArray(rooms) ? rooms : [rooms],
       },
-      rooms: Array.isArray(rooms) ? rooms : [rooms],
-    });
+      nsp: this.broadcastOptions.nsp,
+    };
 
-    this.sendMessage(this.broadcastOptions.requestChannel, request);
+    const msg = this.broadcastOptions.parser.encode(clusterMessage);
+    this.sendMessage("", msg);
   }
 
   public socketsLeave(rooms: string | string[]): void {
-    const request = JSON.stringify({
-      type: RequestType.REMOTE_LEAVE,
-      opts: {
-        rooms: [...this.rooms],
-        except: [...this.exceptRooms],
+    const clusterMessage: ClusterMessage = {
+      uid: UID,
+      type: MessageType.SOCKETS_LEAVE, // SOCKETS_LEAVE
+      data: {
+        opts: {
+          rooms: [...this.rooms],
+          except: [...this.exceptRooms],
+          flags: this.flags,
+        },
+        rooms: Array.isArray(rooms) ? rooms : [rooms],
       },
-      rooms: Array.isArray(rooms) ? rooms : [rooms],
-    });
+      nsp: this.broadcastOptions.nsp,
+    };
 
-    this.sendMessage(this.broadcastOptions.requestChannel, request);
+    const msg = this.broadcastOptions.parser.encode(clusterMessage);
+    this.sendMessage("", msg);
   }
 
   public disconnectSockets(close: boolean = false): void {
-    const request = JSON.stringify({
-      type: RequestType.REMOTE_DISCONNECT,
-      opts: {
-        rooms: [...this.rooms],
-        except: [...this.exceptRooms],
+    const clusterMessage: ClusterMessage = {
+      uid: UID,
+      type: MessageType.DISCONNECT_SOCKETS, // DISCONNECT_SOCKETS
+      data: {
+        opts: {
+          rooms: [...this.rooms],
+          except: [...this.exceptRooms],
+          flags: this.flags,
+        },
+        close,
       },
-      close,
-    });
+      nsp: this.broadcastOptions.nsp,
+    };
 
-    this.sendMessage(this.broadcastOptions.requestChannel, request);
+    const msg = this.broadcastOptions.parser.encode(clusterMessage);
+    this.sendMessage("", msg);
   }
 
   private async sendMessage(channel: string, body: any) {
-    debug("sending message to channel %s", channel);
+    debug("sending message to topic");
     await this.sbSender.sendMessages({
       body,
       contentType: "application/octet-stream",
-      subject: channel,
+      applicationProperties: {
+        nsp: this.broadcastOptions.nsp,
+      },
     });
   }
 }
 
 export default function emitter<
-  EmitEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = DefaultEventsMap
 >(sbSender: ServiceBusSender, opts?: EmitterOptions): Emitter<EmitEvents> {
   return new Emitter(sbSender, opts);
 }
