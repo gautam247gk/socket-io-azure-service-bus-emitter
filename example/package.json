@@ -1,0 +1,22 @@
+{
+  "name": "azure-service-bus-emitter-example",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Example demonstrating Socket.IO with Azure Service Bus adapter and azure-service-bus-emitter",
+  "license": "MIT",
+  "scripts": {
+    "servers": "concurrently -k -n svrA,svrB \"node server-a.js\" \"node server-b.js\"",
+    "emitter": "node emitter.js",
+    "client": "node client.js",
+    "demo": "concurrently  -n svrA,svrB,client,emit \"node server-a.js\" \"node server-b.js\" \"node client.js\" \"node emitter.js\""
+  },
+  "dependencies": {
+    "@azure/service-bus": "^7.1.0",
+    "@socket.io/azure-service-bus-adapter": "^0.1.0",
+    "azure-service-bus-emitter": "file:..",
+    "concurrently": "^9.0.1",
+    "dotenv": "^16.4.5",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  }
+}
