@@ -5,8 +5,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/gautam247gk/azure-service-bus-emitter.git"
   },
+  "keywords": [
+    "socket.io",
+    "azure",
+    "service-bus",
+    "emitter"
+  ],
+  "author": "Gautam Krishnan",
   "files": [
     "dist/"
   ],
