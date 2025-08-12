@@ -1,6 +1,6 @@
 {
   "name": "azure-service-bus-emitter",
-  "version": "5.1.0",
+  "version": "1.1.0",
   "description": "The Socket.IO Azure Service Bus emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
   "license": "MIT",
   "repository": {
@@ -14,7 +14,7 @@
     "emitter"
   ],
   "author": "Gautam Krishnan",
-   "files": [
+  "files": [
     "dist/**/*"
   ],
   "main": "./dist/index.js",
