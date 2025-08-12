@@ -14,8 +14,8 @@
     "emitter"
   ],
   "author": "Gautam Krishnan",
-  "files": [
-    "dist/"
+   "files": [
+    "dist/**/*"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

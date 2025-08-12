@@ -1,0 +1,23 @@
+# Don't include dependencies or local build artifacts
+node_modules/
+.nyc_output/
+coverage/
+
+# Example code and test files
+example/
+test/
+
+# Environment files
+**/.env
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Git metadata
+.git/
+.gitignore
+
+# TypeScript config & other local configs (if you don't need them in npm)
+tsconfig.json
+nyc.config.js
