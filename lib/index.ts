@@ -22,9 +22,10 @@ interface Parser {
 
 export interface EmitterOptions {
   /**
+   * Topic name to use for the Service Bus emitter.
    * @default "socket.io"
    */
-  key?: string;
+  topic?: string;
   /**
    * The parser to use for encoding messages sent to Service Bus.
    * Defaults to @msgpack/msgpack to match the adapter.
@@ -55,15 +56,15 @@ export class Emitter<EmitEvents extends EventsMap = DefaultEventsMap> {
   ) {
     this.opts = Object.assign(
       {
-        key: "socket.io",
+        topic: "socket.io",
         parser: { encode: msgpackEncode },
       },
       opts
     );
     this.broadcastOptions = {
       nsp,
-      broadcastChannel: this.opts.key + "#" + nsp + "#",
-      requestChannel: this.opts.key + "-request#" + nsp + "#",
+      broadcastChannel: this.opts.topic + "#" + nsp + "#",
+      requestChannel: this.opts.topic + "-request#" + nsp + "#",
       parser: this.opts.parser!,
     };
   }
