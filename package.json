@@ -13,19 +13,22 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "tsc && nyc ts-mocha nyc ts-mocha ./test/index.ts",
+    "test": "ts-mocha ./test/**/*.test.ts",
     "prepack": "tsc"
   },
   "dependencies": {
     "@azure/service-bus": "^7.1.0",
+    "@msgpack/msgpack": "^2.8.0",
     "debug": "~4.3.1",
     "notepack.io": "~3.0.1",
+    "socket.io-adapter": "^2.5.0",
     "socket.io-parser": "~4.2.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.0.0",
+    "chai": "^5.2.1",
     "expect.js": "~0.3.1",
     "mocha": "^11.7.1",
     "nyc": "^17.0.0",
