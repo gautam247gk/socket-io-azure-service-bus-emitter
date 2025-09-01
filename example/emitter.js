@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const { ServiceBusClient } = require("@azure/service-bus");
-const { Emitter } = require("azure-service-bus-emitter");
+const { Emitter } = require("socket-io-azure-service-bus-emitter");
 const connectionString =
   process.env.AZURE_SERVICEBUS_CONNECTION_STRING ||
   process.env.AZURE_SERVICE_BUS_CONNECTION_STRING;

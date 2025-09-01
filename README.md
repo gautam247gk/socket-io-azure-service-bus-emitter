@@ -1,6 +1,6 @@
 # The Socket.IO Azure Service Bus Emitter
 
-The `azure-service-bus-emitter` package allows you to send events from any Node.js process to multiple Socket.IO servers connected through [socket.io-azure-service-bus-adapter](https://www.npmjs.com/package/socket.io-azure-service-bus-adapter) via **Azure Service Bus**.
+The `socket-io-azure-service-bus-emitter` package allows you to send events from any Node.js process to multiple Socket.IO servers connected through [socket.io-azure-service-bus-adapter](https://www.npmjs.com/package/socket.io-azure-service-bus-adapter) via **Azure Service Bus**.
 
 > This library **must** be used together with [socket.io-azure-service-bus-adapter](https://www.npmjs.com/package/@socket.io/azure-service-bus-adapter) on your Socket.IO servers.
 
@@ -37,7 +37,7 @@ The `azure-service-bus-emitter` package allows you to send events from any Node.
 ## Installation
 
 ```bash
-npm install azure-service-bus-emitter @azure/service-bus
+npm install socket-io-azure-service-bus-emitter @azure/service-bus
 ```
 
 ---
@@ -47,7 +47,7 @@ npm install azure-service-bus-emitter @azure/service-bus
 ### CommonJS
 
 ```js
-const { Emitter } = require("azure-service-bus-emitter");
+const { Emitter } = require("socket-io-azure-service-bus-emitter");
 const { ServiceBusClient } = require("@azure/service-bus");
 
 const connectionString = process.env.AZURE_SERVICE_BUS_CONNECTION_STRING;
@@ -66,7 +66,7 @@ setInterval(() => {
 ### TypeScript
 
 ```ts
-import { Emitter } from "azure-service-bus-emitter";
+import { Emitter } from "socket-io-azure-service-bus-emitter";
 import { ServiceBusClient } from "@azure/service-bus";
 
 const connectionString = process.env

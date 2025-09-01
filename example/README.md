@@ -1,6 +1,6 @@
 # Azure Service Bus Emitter + Socket.IO Adapter example
 
-This example spins up two Socket.IO servers using the Azure Service Bus adapter and a separate process that uses the azure-service-bus-emitter to broadcast events across processes.
+This example spins up two Socket.IO servers using the Azure Service Bus adapter and a separate process that uses the socket-io-azure-service-bus-emitter to broadcast events across processes.
 
 Requirements:
 

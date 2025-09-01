@@ -1,11 +1,11 @@
 {
-  "name": "azure-service-bus-emitter",
+  "name": "socket-io-azure-service-bus-emitter",
   "version": "1.1.0",
   "description": "The Socket.IO Azure Service Bus emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gautam247gk/azure-service-bus-emitter.git"
+    "url": "https://github.com/gautam247gk/socket-io-azure-service-bus-emitter"
   },
   "keywords": [
     "socket.io",
